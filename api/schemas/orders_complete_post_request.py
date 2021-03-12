@@ -1,7 +1,6 @@
 from marshmallow import fields
 from marshmallow_sqlalchemy import ModelSchema
-
-from .orders_post_request import Orders, db
+from api.models.orders import *
 
 
 class OrdersCompletePostRequest(ModelSchema):

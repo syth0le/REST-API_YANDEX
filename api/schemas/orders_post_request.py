@@ -1,7 +1,6 @@
 from marshmallow import fields
 from marshmallow_sqlalchemy import ModelSchema
-
-from .courier_item import CourierItem, db
+from api.models.orders import *
 
 
 class OrdersPostRequest(ModelSchema):
@@ -10,6 +9,6 @@ class OrdersPostRequest(ModelSchema):
         sqla_session = db.session
 
     order_id = fields.Integer(dump_only=True)
-    weight = fields.String(required=True)
+    weight = fields.Number(required=True)
     region = fields.Integer(required=True)
     delivery_hours = fields.Nested(DeliveryHours, many=True, only=['id', 'orders_id', 'hour'])

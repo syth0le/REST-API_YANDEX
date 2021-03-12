@@ -1,13 +1,18 @@
-from flask_sqlalchemy import SQLAlchemy
+from api.utils.db_init import db
+from enum import Enum
 
-db = SQLAlchemy()
+
+class CourierType(Enum):
+    foot = "foot"
+    bike = "bike"
+    car = 'car'
 
 
-class CourierItem (object):
+class Couriers (object):
     __tablename__ = 'couriers'
 
     courier_id = db.Column(db.Integer())
-    courier_type = db.Column(db.String())
+    courier_type = db.Column(db.Enum(CourierType))
     regions = db.relationship("Regions", backref="recipe", cascade="all, delete-orphan")
     working_hours = db.relationship("Hours", backref="recipe", cascade="all, delete-orphan")
     rating = db.Column(db.Numeric())

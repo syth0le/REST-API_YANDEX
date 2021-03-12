@@ -1,6 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from api.utils.db_init import db
 
 
 class Orders (object):
@@ -10,7 +8,7 @@ class Orders (object):
     weight = db.Column(db.Numeric())
     region = db.Column(db.Integer())
     delivery_hours = db.relationship("DeliveryHours", backref="recipe", cascade="all, delete-orphan")
-    # courier_id кому дали заказ
+    courier_id = db.Column(db.Integer, db.ForeignKey('couriers.courier_id'))
 
 
 class DeliveryHours(object):
