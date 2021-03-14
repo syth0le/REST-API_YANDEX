@@ -14,5 +14,5 @@ class CourierGetResponse(Schema):
     # working_hours = fields.Nested(WorkingHours, many=True, only=['id', 'courier_id', 'hour'])
     working_hours = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
     regions = fields.List(fields.Integer(), required=True, validate=validate.Length(min=1))
-    rating = fields.Number(required=True)
+    rating = fields.Number(required=True)  # Его нет в новой версии ответа
     earnings = fields.Integer(required=True)
