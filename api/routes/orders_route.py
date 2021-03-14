@@ -2,8 +2,7 @@ from flask import Blueprint, request
 
 from api.schemas.orders_assign_post_request import OrdersAssignPostRequest
 from api.schemas.orders_complete_post_request import OrdersCompletePostRequest
-from api.schemas.orders_schema import OrdersSchema
-from api.schemas.orders_post_request import OrdersPostRequest
+from api.schemas.order_item import OrderItem
 
 orders_page = Blueprint('orders', __name__)
 
@@ -12,8 +11,7 @@ orders_page = Blueprint('orders', __name__)
 def orders():
     if request.method == 'POST' and request.headers['Content-Type'] == 'application/json':
         data = request.get_json()
-        orders_schema = OrdersSchema()
-        # orders_schema = OrdersPostRequest()
+        orders_schema = OrderItem()
         orders = orders_schema.load(data)
         # result = courier_schema.dump(courier.create())
         return orders

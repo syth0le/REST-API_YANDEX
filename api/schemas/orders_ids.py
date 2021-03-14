@@ -8,5 +8,5 @@ class OrdersIds(Schema):
     #     model = Orders
     #     sqla_session = db.session
 
-    order_id = fields.Integer(required=True)
+    order_id = fields.Integer(required=True)  # list of #  required orders -> ids
 #  required orders

@@ -15,6 +15,8 @@ create_db(app)
 app.register_blueprint(couriers_page, url_prefix='/couriers')
 app.register_blueprint(orders_page, url_prefix='/orders')
 
+# migrate = Migrate(app, db) в инициализацию вставить
+
 
 @app.route('/')
 def index():
