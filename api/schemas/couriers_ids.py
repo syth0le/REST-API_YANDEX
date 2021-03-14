@@ -1,11 +1,11 @@
 from marshmallow_sqlalchemy import ModelSchema
 from api.models.couriers import *
-from marshmallow import fields
+from marshmallow import fields, Schema
 
 
-class CourierId(ModelSchema):
-    class Meta(ModelSchema.Meta):
-        model = Couriers
-        sqla_session = db.session
+class CourierId(Schema):
+    # class Meta(ModelSchema.Meta):
+    #     model = Couriers
+    #     sqla_session = db.session
 
-    courier_id = fields.Number(dump_only=True)
+    courier_id = fields.Number(required=True)

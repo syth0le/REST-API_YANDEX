@@ -15,28 +15,53 @@ class Couriers (db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
     courier_id = db.Column(db.Integer, unique=True)
     courier_type = db.Column(db.Enum(CourierType))
-    regions = db.relationship("Regions", backref="couriers", cascade="all, delete-orphan")
-    working_hours = db.relationship("Hours", backref="couriers", cascade="all, delete-orphan")
+    regions = db.relationship("Regions", backref="courier", cascade="all, delete-orphan")
+    working_hours = db.relationship("WorkingHours", backref="courier", cascade="all, delete-orphan")
     rating = db.Column(db.Numeric)
     earnings = db.Column(db.Integer)
-    weight_max = db.Column(db.Numeric, default=lambda: set_weight())
+    # weight_max = db.Column(db.Numeric, default=lambda: set_weight())
     weight_current = db.Column(db.Numeric, default=0)
     completed_orders = db.Column(db.Integer)
-    delivery_times = db.relationship("Regions", backref="couriers", cascade="all, delete-orphan")
-#
+    # delivery_times = db.relationship("Regions", backref="courier", cascade="all, delete-orphan")
+
+    def __str__(self):
+        return self.courier_id
+
+    def __repr__(self):
+        return f"{self.__class__.__name__} {self.courier_id}"
+
+    def create(self):
+        db.session.add(self)
+        db.session.commit()
+        return self
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self, data):
+        for key, item in data:
+            setattr(self, key, item)
+        # self.modified_at = datetime.datetime.utcnow()
+        db.session.commit()
+
     # @weight_max.setter
-    def set_weight(self, value, DATA):
-        self.weight_max = self.DATA[self.courier_type][1]
-
-    @property
-    def salary(self):
-        self.earnings = self.completed_orders * 500 * self.DATA[self.courier_type][0]
-        return self._salary
-
-    @property
-    def rating(self):
-        t = min(td[1], td[2], ..., td[n])
-        (60 * 60 - min(t, 60 * 60)) / (60 * 60) * 5
+    # def set_weight(self, value, DATA):
+    #     self.weight_max = self.DATA[self.courier_type][1]
+    #
+    # @property
+    # def salary(self):
+    #     self.earnings = self.completed_orders * 500 * self.DATA[self.courier_type][0]
+    #     return self._salary
+    #
+    # @property
+    # def rating(self):
+    #     t = min(td[1], td[2], ..., td[n])
+    #     (60 * 60 - min(t, 60 * 60)) / (60 * 60) * 5
 
 
 class DeliveryTime(db.Model):

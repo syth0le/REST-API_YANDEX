@@ -1,18 +1,40 @@
-from flask import Blueprint
+from flask import Blueprint, request
+
+from api.schemas.orders_assign_post_request import OrdersAssignPostRequest
+from api.schemas.orders_complete_post_request import OrdersCompletePostRequest
+from api.schemas.orders_schema import OrdersSchema
+from api.schemas.orders_post_request import OrdersPostRequest
 
 orders_page = Blueprint('orders', __name__)
 
 
 @orders_page.route('/', methods=['POST'])
 def orders():
-    return '/orders POST'
+    if request.method == 'POST' and request.headers['Content-Type'] == 'application/json':
+        data = request.get_json()
+        orders_schema = OrdersSchema()
+        # orders_schema = OrdersPostRequest()
+        orders = orders_schema.load(data)
+        # result = courier_schema.dump(courier.create())
+        return orders
 
 
 @orders_page.route('/assign', methods=['POST'])
 def orders_assign():
-    return '/orders/assign POST'
+    if request.method == 'POST' and request.headers['Content-Type'] == 'application/json':
+        data = request.get_json()
+        orders_assign_schema = OrdersAssignPostRequest()
+        # orders_schema = OrdersPostRequest()
+        orders = orders_assign_schema.load(data)
+        # result = courier_schema.dump(courier.create())
+        return orders
 
 
 @orders_page.route('/complete', methods=['POST'])
 def orders_complete():
-    return '/orders/complete POST'
+    if request.method == 'POST' and request.headers['Content-Type'] == 'application/json':
+        data = request.get_json()
+        orders_complete_schema = OrdersCompletePostRequest()
+        orders = orders_complete_schema.load(data)
+        # result = courier_schema.dump(courier.create())
+        return orders

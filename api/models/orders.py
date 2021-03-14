@@ -8,7 +8,7 @@ class Orders (db.Model):
     order_id = db.Column(db.Integer, unique=True)
     weight = db.Column(db.Numeric)
     region = db.Column(db.Integer)
-    delivery_hours = db.relationship("DeliveryHours", backref="orders", cascade="all, delete-orphan")
+    delivery_hours = db.relationship("DeliveryHours", backref="order", cascade="all, delete-orphan")
     courier_id = db.Column(db.Integer, db.ForeignKey('couriers.courier_id'))
 
 

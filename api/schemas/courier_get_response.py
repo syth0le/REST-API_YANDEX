@@ -1,16 +1,18 @@
-from marshmallow import fields
+from marshmallow import fields, validate, Schema
 from marshmallow_sqlalchemy import ModelSchema
 from api.models.couriers import *
 
 
-class CourierGetResponse(ModelSchema):
-    class Meta(ModelSchema.Meta):
-        model = Couriers
-        sqla_session = db.session
+class CourierGetResponse(Schema):
+    # class Meta(ModelSchema.Meta):
+    #     model = Couriers
+    #     sqla_session = db.session
 
-    courier_id = fields.Number(dump_only=True)
+    courier_id = fields.Number(required=True)
     courier_type = fields.String(required=True)
-    regions = fields.Nested(Regions, many=True, only=['id', 'courier_id', 'region'])
-    working_hours = fields.Nested(WorkingHours, many=True, only=['id', 'courier_id', 'hour'])
-    rating = fields.Number(dump_only=True)
-    earnings = fields.Integer(dump_only=True)
+    # regions = fields.Nested(Regions, many=True, only=['id', 'courier_id', 'region'])
+    # working_hours = fields.Nested(WorkingHours, many=True, only=['id', 'courier_id', 'hour'])
+    working_hours = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
+    regions = fields.List(fields.Integer(), required=True, validate=validate.Length(min=1))
+    rating = fields.Number(required=True)
+    earnings = fields.Integer(required=True)
