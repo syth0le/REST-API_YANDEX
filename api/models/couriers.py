@@ -8,6 +8,12 @@ class CourierType(Enum):
     car = 'car'
 
 
+def set_weight(courier_type):
+    DATA = {"foot": (2, 10), "bike": (5, 15), "car": (9, 50)}
+    weight_max = DATA[courier_type][1]
+    return weight_max
+
+
 class Couriers (db.Model):
     __tablename__ = 'couriers'
     DATA = {"foot": (2, 10), "bike": (5, 15), "car": (9, 50)}
@@ -19,7 +25,7 @@ class Couriers (db.Model):
     working_hours = db.relationship("WorkingHours", backref="courier", cascade="all, delete-orphan")
     rating = db.Column(db.Numeric)
     earnings = db.Column(db.Integer)
-    # weight_max = db.Column(db.Numeric, default=lambda: set_weight())
+    # weight_max = db.Column(db.Numeric, default=lambda: set_weight(courier_type))
     weight_current = db.Column(db.Numeric, default=0)
     completed_orders = db.Column(db.Integer)
     # delivery_times = db.relationship("Regions", backref="courier", cascade="all, delete-orphan")
@@ -49,9 +55,6 @@ class Couriers (db.Model):
         # self.modified_at = datetime.datetime.utcnow()
         db.session.commit()
 
-    # @weight_max.setter
-    # def set_weight(self, value, DATA):
-    #     self.weight_max = self.DATA[self.courier_type][1]
     #
     # @property
     # def salary(self):
