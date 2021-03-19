@@ -3,10 +3,10 @@ from marshmallow_sqlalchemy import ModelSchema
 from api.models.orders import *
 
 
-class OrderItem(Schema):
-    # class Meta(ModelSchema.Meta):
-    #     model = Orders
-    #     sqla_session = db.session
+class OrderItem(ModelSchema):
+    class Meta(ModelSchema.Meta):
+        model = Orders
+        sqla_session = db.session
 
     order_id = fields.Integer(required=True)
     weight = fields.Float(required=True)

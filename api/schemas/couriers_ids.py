@@ -8,5 +8,5 @@ class CourierId(Schema):
     #     model = Couriers
     #     sqla_session = db.session
 
-    courier_id = fields.Number(required=True)  # list of #  required couriers -> ids
+    id = fields.Integer(required=True)  # list of #  required couriers -> ids
 #  required couriers
