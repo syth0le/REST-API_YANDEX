@@ -24,8 +24,6 @@ class Couriers(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
     courier_id = db.Column(db.Integer, unique=True, nullable=False)
     courier_type = db.Column(db.Enum(CourierType))
-    # regions = db.relationship("Regions", backref="courier", cascade="all, delete-orphan")
-    # working_hours = db.relationship("WorkingHours", backref="courier", cascade="all, delete-orphan")
     regions = db.Column(db.PickleType, nullable=False)
     working_hours = db.Column(db.PickleType, nullable=False)
     rating = db.Column(db.Float, default=0.0)
@@ -64,22 +62,3 @@ class Couriers(db.Model):
     @classmethod
     def find_by_courier_id(cls, courier_id):
         return cls.query.filter_by(courier_id=courier_id).first()
-
-
-class DeliveryTime(db.Model):
-    id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
-    courier_id = db.Column(db.Integer, db.ForeignKey('couriers.courier_id'))
-    region = db.Column(db.Integer)
-    delivery_time = db.Column(db.Integer)
-
-
-class Regions(db.Model):
-    id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
-    courier_id = db.Column(db.Integer, db.ForeignKey('couriers.courier_id'))
-    region = db.Column(db.Integer)
-
-
-class WorkingHours(db.Model):
-    id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
-    courier_id = db.Column(db.Integer, db.ForeignKey('couriers.courier_id'))
-    hour = db.Column(db.String(50))

@@ -41,9 +41,3 @@ class Orders (db.Model):
     @classmethod
     def find_by_order_id(cls, order_id):
         return cls.query.filter_by(order_id=order_id).first()
-
-
-class DeliveryHours(db.Model):
-    id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('orders.order_id'))
-    hour = db.Column(db.String(50))

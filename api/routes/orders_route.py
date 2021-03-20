@@ -62,17 +62,15 @@ def orders_assign():
         orders_assigned_ids_schema = OrdersIds(many=True)
         assign_time = datetime.datetime.utcnow()
         current_weight = 0
-        # print(courier.regions)
 
         sql = f"select * from Orders where region in {tuple(courier.regions)} AND assigned == False AND completed == False order by weight"
         result = db.engine.execute(sql)
 
         for elem in result:
-            # print(elem)
             order_weight = elem.weight
 
             if courier.weight_current + order_weight > max_courier_weight:
-                print("BREAK= нельзя дать заказ у курьера дозуя заказов")
+                print("BREAK= нельзя дать заказ у курьера перегруз заказов")
                 return make_response(jsonify({"orders": []}), 200)
 
             if current_weight + order_weight > max_courier_weight:
