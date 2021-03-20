@@ -7,6 +7,9 @@ class CourierType(Enum):
     bike = "bike"
     car = 'car'
 
+    def __str__(self):
+        return str(self.value)
+
 
 def set_weight(courier_type):
     DATA = {"foot": (2, 10), "bike": (5, 15), "car": (9, 50)}
@@ -34,7 +37,7 @@ class Couriers(db.Model):
     # delivery_times = db.relationship("Regions", backref="courier", cascade="all, delete-orphan")
 
     def __str__(self):
-        return self.courier_id
+        return str(self.courier_id)
 
     def __repr__(self):
         return f"{self.__class__.__name__} {self.courier_id}"

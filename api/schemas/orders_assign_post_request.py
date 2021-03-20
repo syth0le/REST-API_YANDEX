@@ -5,7 +5,7 @@ from api.models.orders import *
 
 class OrdersAssignPostRequest(Schema):
     # class Meta(ModelSchema.Meta):
-    #     model = Orders
+    #     model = OrdersInWork
     #     sqla_session = db.session
 
     courier_id = fields.Integer(required=True)
