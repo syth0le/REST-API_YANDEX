@@ -21,8 +21,3 @@ app.register_blueprint(orders_page, url_prefix='/orders')
 @app.route('/')
 def index():
     return 'IT WORKS'
-
-# достаем айдишники именно так:
-# some_ids = [1, 2, 3, 4]
-# query = "SELECT * FROM my_table t WHERE t.id = ANY(:ids);"
-# conn.execute(sqlalchemy.text(query), ids=some_ids)

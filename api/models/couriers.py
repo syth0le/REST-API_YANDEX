@@ -32,8 +32,6 @@ class Couriers(db.Model):
     weight_current = db.Column(db.Float, default=0.0)
     completed_orders = db.Column(db.Integer, default=0)
 
-    # delivery_times = db.relationship("Regions", backref="courier", cascade="all, delete-orphan")
-
     def __str__(self):
         return str(self.courier_id)
 

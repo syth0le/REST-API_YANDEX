@@ -4,8 +4,8 @@ db = SQLAlchemy()
 
 
 def create_db(app):
-    from api.models.couriers import Couriers, WorkingHours, Regions
-    from api.models.orders import Orders, DeliveryHours
+    from api.models.couriers import Couriers
+    from api.models.orders import Orders
 
     db.init_app(app)
 

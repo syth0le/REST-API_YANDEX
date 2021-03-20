@@ -47,11 +47,14 @@ def courier_by_id(courier_id):
     if request.method == 'GET':
         set_properties_courier = Couriers.find_by_courier_id(int(courier_id))
 
-        set_properties_courier.rating = get_rating(set_properties_courier.courier_id)
-        set_properties_courier.earnings = get_salary(set_properties_courier.courier_type, set_properties_courier.completed_orders)
+        if set_properties_courier.completed_orders > 0:
 
-        db.session.add(set_properties_courier)
-        db.session.commit()
+            set_properties_courier.rating = get_rating(set_properties_courier.courier_id)
+            if set_properties_courier.rating != 0:
+                set_properties_courier.earnings = get_salary(set_properties_courier.courier_type, set_properties_courier.completed_orders)
+
+            db.session.add(set_properties_courier)
+            db.session.commit()
 
         current_courier = Couriers.find_by_courier_id(courier_id)
         courier_schema = CourierGetResponse()
