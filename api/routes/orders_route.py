@@ -1,5 +1,7 @@
 import datetime
 
+import iso8601
+import rfc3339
 from flask import Blueprint, request, make_response, jsonify
 from marshmallow import ValidationError
 
@@ -8,6 +10,7 @@ from api.models.orders import Orders
 from api.schemas.orders_assign_post_request import OrdersAssignPostRequest
 from api.schemas.orders_complete_post_request import OrdersCompletePostRequest
 from api.schemas.order_item import OrderItem
+from api.schemas.orders_complete_post_response import OrdersCompletePostResponse
 from api.schemas.orders_ids import OrdersIds
 from api.utils.db_init import db
 
@@ -54,7 +57,7 @@ def orders_assign():
         try:
             courier = Couriers.find_by_courier_id(courier_id)
         except:
-            return "BAD REQUEST", 400
+            return "Bad Request", 400
         max_courier_weight = get_weight(courier.courier_type)
         orders_assigned_ids_schema = OrdersIds(many=True)
         assign_time = datetime.datetime.utcnow()
@@ -103,7 +106,23 @@ def orders_assign():
 def orders_complete():
     if request.method == 'POST' and request.headers['Content-Type'] == 'application/json':
         data = request.get_json()
-        orders_complete_schema = OrdersCompletePostRequest()
-        orders = orders_complete_schema.load(data)
-        # result = courier_schema.dump(courier.create())
-        return orders
+        order_complete_schema_request = OrdersCompletePostRequest()
+        order_complete = order_complete_schema_request.load(data)
+        courier_id = order_complete['courier_id']
+        order_id = order_complete['order_id']
+        complete_time = iso8601.parse_date(order_complete['complete_time'])
+        # В случае, если заказ не найден, был назначен на другого курьера или не назначен вовсе,
+        # следует вернуть ошибку HTTP 400 Bad Request 
+
+        orders_to_complete = Orders.query.filter(Orders.courier_id == courier_id, Orders.order_id == order_id).first()
+
+        orders_to_complete.completed = True
+        orders_to_complete.complete_time = complete_time
+
+        db.session.add(orders_to_complete)
+        db.session.commit()
+
+        order_to_complete = Orders.query.filter(Orders.order_id == order_id).first()
+        order_complete_schema_response = OrdersCompletePostResponse()
+        json_result = order_complete_schema_response.dump(order_to_complete)
+        return make_response(jsonify(json_result), 200)
