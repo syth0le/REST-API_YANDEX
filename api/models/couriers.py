@@ -28,10 +28,10 @@ class Couriers(db.Model):
     # working_hours = db.relationship("WorkingHours", backref="courier", cascade="all, delete-orphan")
     regions = db.Column(db.PickleType, nullable=False)
     working_hours = db.Column(db.PickleType, nullable=False)
-    rating = db.Column(db.Numeric, default=0.0)
-    earnings = db.Column(db.Integer, default=0)
-    # weight_max = db.Column(db.Numeric, default=lambda: set_weight(courier_type))
-    weight_current = db.Column(db.Integer, default=0)
+    rating = db.Column(db.Float, default=0.0)
+    earnings = db.Column(db.Float, default=0.0)
+    # weight_max = db.Column(db.Float, default=lambda: set_weight(courier_type))
+    weight_current = db.Column(db.Float, default=0.0)
     completed_orders = db.Column(db.Integer, default=0)
 
     # delivery_times = db.relationship("Regions", backref="courier", cascade="all, delete-orphan")
@@ -64,17 +64,6 @@ class Couriers(db.Model):
     @classmethod
     def find_by_courier_id(cls, courier_id):
         return cls.query.filter_by(courier_id=courier_id).first()
-
-    #
-    # @property
-    # def salary(self):
-    #     self.earnings = self.completed_orders * 500 * self.DATA[self.courier_type][0]
-    #     return self._salary
-    #
-    # @property
-    # def rating(self):
-    #     t = min(td[1], td[2], ..., td[n])
-    #     (60 * 60 - min(t, 60 * 60)) / (60 * 60) * 5
 
 
 class DeliveryTime(db.Model):

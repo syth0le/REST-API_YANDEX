@@ -18,8 +18,8 @@ orders_page = Blueprint('orders', __name__)
 
 
 def get_weight(courier_type):
-    DATA = {"foot": (2, 10), "bike": (5, 15), "car": (9, 50)}
-    weight_max = DATA[str(courier_type)][1]
+    DATA = {"foot": 10, "bike": 15, "car": 50}
+    weight_max = DATA[str(courier_type)]
     return weight_max
 
 
@@ -110,19 +110,31 @@ def orders_complete():
         order_complete = order_complete_schema_request.load(data)
         courier_id = order_complete['courier_id']
         order_id = order_complete['order_id']
-        complete_time = iso8601.parse_date(order_complete['complete_time'])
+        complete_time = iso8601.parse_date(order_complete['complete_time']).replace(tzinfo=None)
         # В случае, если заказ не найден, был назначен на другого курьера или не назначен вовсе,
         # следует вернуть ошибку HTTP 400 Bad Request 
 
+        current_courier = Couriers.find_by_courier_id(int(courier_id))
         orders_to_complete = Orders.query.filter(Orders.courier_id == courier_id, Orders.order_id == order_id).first()
+
+        if orders_to_complete is None or not orders_to_complete.assigned:
+            return "Bad Request", 400
+        if orders_to_complete.completed:
+            return make_response(jsonify({"orders_id": orders_to_complete.order_id}), 200)
 
         orders_to_complete.completed = True
         orders_to_complete.complete_time = complete_time
+        orders_to_complete.difference_time = (complete_time-orders_to_complete.assign_time).total_seconds()
+        current_courier.weight_current -= orders_to_complete.weight
+        current_courier.completed_orders += 1
 
         db.session.add(orders_to_complete)
+        db.session.add(current_courier)
         db.session.commit()
 
         order_to_complete = Orders.query.filter(Orders.order_id == order_id).first()
         order_complete_schema_response = OrdersCompletePostResponse()
         json_result = order_complete_schema_response.dump(order_to_complete)
         return make_response(jsonify(json_result), 200)
+
+

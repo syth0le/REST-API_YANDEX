@@ -8,7 +8,7 @@ class CourierGetResponse(Schema):
     #     model = Couriers
     #     sqla_session = db.session
 
-    courier_id = fields.Number(required=True)
+    courier_id = fields.Integer(required=True)
     courier_type = fields.String(required=True)
     # regions = fields.Nested(Regions, many=True, only=['id', 'courier_id', 'region'])
     # working_hours = fields.Nested(WorkingHours, many=True, only=['id', 'courier_id', 'hour'])

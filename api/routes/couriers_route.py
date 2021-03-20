@@ -12,6 +12,7 @@ from api.schemas.courier_update_request import CourierUpdateRequest
 from api.schemas.couriers_ids import CourierId
 from api.schemas.couriers_post_request import CouriersPostRequest
 from api.schemas.courier_item import CourierItem
+from api.utils.db_init import db
 
 couriers_page = Blueprint('couriers', __name__)
 
@@ -58,9 +59,18 @@ def couriers():
 @couriers_page.route('/<int:courier_id>', methods=['GET', 'PATCH'])
 def courier_by_id(courier_id):
     if request.method == 'GET':
+        set_properties_courier = Couriers.find_by_courier_id(int(courier_id))
+
+        set_properties_courier.rating = get_rating(set_properties_courier.courier_id)
+        set_properties_courier.earnings = get_salary(set_properties_courier.courier_type, set_properties_courier.completed_orders)
+
+        db.session.add(set_properties_courier)
+        db.session.commit()
+
         current_courier = Couriers.find_by_courier_id(courier_id)
         courier_schema = CourierGetResponse()
         json_recipe = courier_schema.dump(current_courier)
+
         return jsonify(json_recipe), 200
     else:
         current_courier = Couriers.query.get_or_404(courier_id)
@@ -68,3 +78,22 @@ def courier_by_id(courier_id):
         courier_schema = CourierUpdateRequest()
         courier_upd = courier_schema.load(data)
         return current_courier, 200
+
+    # select
+    # min(complete_time - assign_time)
+    # from Orders where
+    # (complete_time not Null and assign_time not Null)
+
+
+def get_rating(courier_id):
+    sql_request = f"select min(x.avg) as min_rating from (select avg(difference_time) as avg, region from Orders where courier_id = {courier_id} and difference_time is not Null group by region)x limit 1;"
+    result = db.engine.execute(sql_request)
+    min_rating = result.fetchone()['min_rating']
+    rating_courier = (60 * 60 - min(min_rating, 60 * 60)) / (60 * 60) * 5
+    return round(rating_courier, 2)
+
+
+def get_salary(courier_type, completed_orders):
+    DATA = {"foot": 2, "bike": 5, "car": 9}
+    salary = 500 * DATA[str(courier_type)] * completed_orders
+    return salary
