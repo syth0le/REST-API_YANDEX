@@ -3,7 +3,7 @@ from marshmallow_sqlalchemy import ModelSchema
 from api.models.orders import *
 
 
-class OrdersIds(ModelSchema):
+class OrdersIdsAP(ModelSchema):
     class Meta(ModelSchema.Meta):
         model = Orders
         fields = ['id']

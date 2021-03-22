@@ -7,7 +7,7 @@ from marshmallow import ValidationError
 from api.models.couriers import Couriers
 from api.schemas.courier_get_response import CourierGetResponse
 from api.schemas.courier_update_request import CourierUpdateRequest
-from api.schemas.couriers_ids import CourierId
+from api.schemas.couriers_ids import CouriersIds
 from api.schemas.couriers_post_request import CouriersPostRequest
 from api.schemas.courier_item import CourierItem
 from api.utils.db_init import db
@@ -23,7 +23,7 @@ def couriers():
         json_data = request.get_json()
         if not json_data:
             current_smt = Couriers.query.get_or_404(1)
-            ids_schema = CourierId()
+            ids_schema = CouriersIds()
             json_ids = ids_schema.dump(current_smt)
             return make_response(jsonify({"validation_error": json_ids})), 400
         try:
@@ -36,7 +36,7 @@ def couriers():
         # if db_sess.query(Couriers).get(json_data['courier_id']) is not None:
         #     raise Exception
         current_smt = Couriers.query.get_or_404(1)
-        ids_schema = CourierId()
+        ids_schema = CouriersIds()
         json_ids = ids_schema.dump(current_smt)
         status_code = flask.Response(status=201)
         return make_response(jsonify({"couriers": json_ids}), 201)
