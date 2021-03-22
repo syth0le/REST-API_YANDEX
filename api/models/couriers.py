@@ -1,14 +1,5 @@
+from api.utils.courier_type import CourierType
 from api.utils.db_init import db
-from enum import Enum
-
-
-class CourierType(Enum):
-    foot = "foot"
-    bike = "bike"
-    car = 'car'
-
-    def __str__(self):
-        return str(self.value)
 
 
 def set_weight(courier_type):
@@ -33,7 +24,7 @@ class Couriers(db.Model):
     completed_orders = db.Column(db.Integer, default=0)
 
     def __str__(self):
-        return str(self.courier_id)
+        return f"{self.courier_id}, {self.courier_type}, {self.working_hours}, {self.regions}"
 
     def __repr__(self):
         return f"{self.__class__.__name__} {self.courier_id}"

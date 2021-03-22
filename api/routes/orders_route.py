@@ -1,5 +1,4 @@
 import datetime
-
 import iso8601
 import rfc3339
 from flask import Blueprint, request, make_response, jsonify
@@ -13,14 +12,9 @@ from api.schemas.order_item import OrderItem
 from api.schemas.orders_complete_post_response import OrdersCompletePostResponse
 from api.schemas.orders_ids import OrdersIds
 from api.utils.db_init import db
+from api.utils.get_weight import get_weight
 
 orders_page = Blueprint('orders', __name__)
-
-
-def get_weight(courier_type):
-    DATA = {"foot": 10, "bike": 15, "car": 50}
-    weight_max = DATA[str(courier_type)]
-    return weight_max
 
 
 @orders_page.route('/', methods=['POST'])
@@ -134,5 +128,3 @@ def orders_complete():
         order_complete_schema_response = OrdersCompletePostResponse()
         json_result = order_complete_schema_response.dump(order_to_complete)
         return make_response(jsonify(json_result), 200)
-
-

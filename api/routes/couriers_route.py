@@ -30,7 +30,11 @@ def couriers():
             courier_schema = CourierItem()
             courier = courier_schema.load(json_data)
         except ValidationError as err:
-            return err.messages, 400
+            print(err.messages)
+            return make_response(jsonify({'error': 'HTTP 400 Bad Request',
+                                      "validation_error": {
+                                        "couriers": "ids"
+                                      }}), 400)  # при валидации кидает сюда)
 
         result = courier_schema.dump(courier.create())
         # if db_sess.query(Couriers).get(json_data['courier_id']) is not None:
@@ -58,12 +62,18 @@ def courier_by_id(courier_id):
 
         current_courier = Couriers.find_by_courier_id(courier_id)
         courier_schema = CourierGetResponse()
-        json_recipe = courier_schema.dump(current_courier)
+        json_result = courier_schema.dump(current_courier)
 
-        return jsonify(json_recipe), 200
+        return jsonify(json_result), 200
     else:
         current_courier = Couriers.query.get_or_404(courier_id)
         data = request.get_json()
-        courier_schema = CourierUpdateRequest()
-        courier_upd = courier_schema.load(data)
-        return current_courier, 200
+        courier_upd_schema = CourierUpdateRequest()
+        courier_upd = courier_upd_schema.load(data, instance=current_courier, partial=True)
+        db.session.add(courier_upd)
+        db.session.commit()
+
+        updated_courier = Couriers.query.get_or_404(courier_id)
+        courier_schema = CourierItem()
+        json_result = courier_schema.dump(updated_courier)
+        return jsonify(json_result), 200

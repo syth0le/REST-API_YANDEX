@@ -38,6 +38,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\task\openapi.yaml">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\task\Условие задания.md">
           <value>
             <Attribute>
