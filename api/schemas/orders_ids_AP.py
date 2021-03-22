@@ -1,12 +1,5 @@
-from marshmallow import fields
-from marshmallow_sqlalchemy import ModelSchema
-from api.models.orders import *
+from marshmallow import fields, Schema
 
 
-class OrdersIdsAP(ModelSchema):
-    class Meta(ModelSchema.Meta):
-        model = Orders
-        fields = ['id']
-        sqla_session = db.session
-
-    id = fields.Integer(required=True, dump_only=True)
+class OrdersIdsAP(Schema):
+    order_id = fields.Integer(required=True)

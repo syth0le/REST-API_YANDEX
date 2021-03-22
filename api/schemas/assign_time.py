@@ -11,4 +11,4 @@ class AssignTime(ModelSchema):
         fields = ['assign_time']
         sqla_session = db.session
 
-    assign_time = fields.String(required=True)
+    assign_time = fields.String()

@@ -6,11 +6,14 @@ from marshmallow import ValidationError
 
 from api.models.couriers import Couriers
 from api.models.orders import Orders
+from api.schemas.couriers_post_request import CouriersPostRequest
 from api.schemas.orders_assign_post_request import OrdersAssignPostRequest
 from api.schemas.orders_complete_post_request import OrdersCompletePostRequest
 from api.schemas.order_item import OrderItem
 from api.schemas.orders_complete_post_response import OrdersCompletePostResponse
 from api.schemas.orders_ids import OrdersIds
+from api.schemas.orders_ids_AP import OrdersIdsAP
+from api.schemas.orders_post_request import OrdersPostRequest
 from api.utils.db_init import db
 from api.utils.get_weight import get_weight
 
@@ -21,18 +24,27 @@ orders_page = Blueprint('orders', __name__)
 def orders_post():
     if request.method == 'POST' and request.headers['Content-Type'] == 'application/json':
         json_data = request.get_json()
+        temp = list()
         if not json_data:
             current_smt = Orders.query.get_or_404(1)
             ids_schema = OrdersIds()
             json_ids = ids_schema.dump(current_smt)
             return make_response(jsonify({"validation_error": json_ids})), 400
         try:
-            orders_schema = OrderItem()
-            order = orders_schema.load(json_data)
+            orders_schema = OrdersPostRequest()
+            orders = orders_schema.load(json_data)
+            for order in orders["data"]:
+                orders_schema.dump(order.create())
         except ValidationError as err:
-            return err.messages, 400
+            # print(err.valid_data["data"])
+            ids_AP_schema = OrdersIdsAP(many=True, unknown='EXCLUDE')
+            json_ids = ids_AP_schema.load(err.valid_data["data"])
+            json_ids = ids_AP_schema.dump(json_ids)
+            # json_ids = ids_AP_schema.validate(err.valid_data["data"])
+            # print(json_ids)
+            return make_response(jsonify({"validation_error": {"couriers": json_ids}}), 400)
 
-        result = orders_schema.dump(order.create())
+        # result = orders_schema.dump(order.create())
         # if db_sess.query(Couriers).get(json_data['courier_id']) is not None:
         #     raise Exception
         current_smt = Orders.query.get_or_404(1)
@@ -56,8 +68,11 @@ def orders_assign():
         orders_assigned_ids_schema = OrdersIds(many=True)
         assign_time = datetime.datetime.utcnow()
         current_weight = 0
+        if len(courier.regions) > 1:
+            sql = f"select * from Orders where region in {tuple(courier.regions)} AND assigned == False AND completed == False order by weight"
+        else:
+            sql = f"select * from Orders where region == {courier.regions[0]} AND assigned == False AND completed == False order by weight"
 
-        sql = f"select * from Orders where region in {tuple(courier.regions)} AND assigned == False AND completed == False order by weight"
         result = db.engine.execute(sql)
 
         for elem in result:
