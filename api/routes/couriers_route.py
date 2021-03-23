@@ -81,7 +81,11 @@ def courier_by_id(courier_id):
         db.session.add(courier_upd)
         db.session.commit()
 
-        updated_courier = Couriers.query.get_or_404(courier_id)
+        updated_courier = Couriers.find_by_courier_id(int(courier_id))
+
+        
+
+
         courier_schema = CourierItem()
         json_result = courier_schema.dump(updated_courier)
         return jsonify(json_result), 200

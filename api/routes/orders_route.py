@@ -36,7 +36,7 @@ def orders_post():
             orders = orders_schema.load(json_data)
             for order in orders["data"]:
                 orders_schema.dump(order.create())
-                ids.append({"id": orders.order_id})
+                ids.append({"id": order.order_id})
         except ValidationError as err:
             # print(err.valid_data["data"])
             ids_AP_schema = OrdersIdsAP(many=True, unknown='EXCLUDE')
@@ -47,9 +47,9 @@ def orders_post():
             json_ids = ids_AP_schema.dump(json_ids)
             return make_response(jsonify({"validation_error": {"orders": json_ids}}), 400)
 
-        current_smt = Orders.query.get_or_404(1)
-        ids_schema = OrdersIds()
-        json_ids = ids_schema.dump(current_smt)
+        ids_AP_schema = OrdersIdsAP(many=True, unknown='EXCLUDE')
+        json_ids = ids_AP_schema.load(ids)
+        json_ids = ids_AP_schema.dump(json_ids)
         return make_response(jsonify({"orders": json_ids}), 201)
 
 
