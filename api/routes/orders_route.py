@@ -1,4 +1,7 @@
 import datetime
+import re
+import sqlite3
+
 import iso8601
 import rfc3339
 from flask import Blueprint, request, make_response, jsonify
@@ -6,6 +9,7 @@ from marshmallow import ValidationError
 
 from api.models.couriers import Couriers
 from api.models.orders import Orders
+from api.schemas.assign_time import AssignTime
 from api.schemas.couriers_post_request import CouriersPostRequest
 from api.schemas.orders_assign_post_request import OrdersAssignPostRequest
 from api.schemas.orders_complete_post_request import OrdersCompletePostRequest
@@ -24,29 +28,25 @@ orders_page = Blueprint('orders', __name__)
 def orders_post():
     if request.method == 'POST' and request.headers['Content-Type'] == 'application/json':
         json_data = request.get_json()
-        temp = list()
+        ids = list()
         if not json_data:
-            current_smt = Orders.query.get_or_404(1)
-            ids_schema = OrdersIds()
-            json_ids = ids_schema.dump(current_smt)
-            return make_response(jsonify({"validation_error": json_ids})), 400
+            return make_response(jsonify({"validation_error": {}})), 400
         try:
             orders_schema = OrdersPostRequest()
             orders = orders_schema.load(json_data)
             for order in orders["data"]:
                 orders_schema.dump(order.create())
+                ids.append({"id": orders.order_id})
         except ValidationError as err:
             # print(err.valid_data["data"])
             ids_AP_schema = OrdersIdsAP(many=True, unknown='EXCLUDE')
-            json_ids = ids_AP_schema.load(err.valid_data["data"])
-            json_ids = ids_AP_schema.dump(json_ids)
-            # json_ids = ids_AP_schema.validate(err.valid_data["data"])
-            # print(json_ids)
-            return make_response(jsonify({"validation_error": {"couriers": json_ids}}), 400)
+            for elem in list(err.messages["data"].keys()):
+                ids.append({"id": err.valid_data["data"][elem]["order_id"]})
 
-        # result = orders_schema.dump(order.create())
-        # if db_sess.query(Couriers).get(json_data['courier_id']) is not None:
-        #     raise Exception
+            json_ids = ids_AP_schema.load(ids)
+            json_ids = ids_AP_schema.dump(json_ids)
+            return make_response(jsonify({"validation_error": {"orders": json_ids}}), 400)
+
         current_smt = Orders.query.get_or_404(1)
         ids_schema = OrdersIds()
         json_ids = ids_schema.dump(current_smt)
@@ -73,40 +73,39 @@ def orders_assign():
         else:
             sql = f"select * from Orders where region == {courier.regions[0]} AND assigned == False AND completed == False order by weight"
 
-        result = db.engine.execute(sql)
+        result = db.session.execute(sql)
 
         for elem in result:
             order_weight = elem.weight
 
             if courier.weight_current + order_weight > max_courier_weight:
-                print("BREAK= нельзя дать заказ у курьера перегруз заказов")
                 return make_response(jsonify({"orders": []}), 200)
 
             if current_weight + order_weight > max_courier_weight:
-                print("BREAK=" + str(current_weight + order_weight))
                 break
 
             current_smt = Orders.query.get(elem.id)
-            current_smt.assign_time = assign_time
-            current_smt.courier_id = courier.courier_id
-            current_smt.assigned = True
-            db.session.add(current_smt)
+            if any(item in current_smt.delivery_hours for item in courier.working_hours):
+                current_smt.assign_time = assign_time
+                current_smt.courier_id = courier.courier_id
+                current_smt.assigned = True
+                db.session.add(current_smt)
 
-            current_weight += order_weight
-            print(f"current weight = {current_weight}")
-
-        print(f"final weight = {current_weight}")
+                current_weight += order_weight
 
         courier.weight_current += current_weight
         db.session.add(courier)
         db.session.commit()
 
-        result_time = str(assign_time.isoformat())
-
         orders_assigned_ids = Orders.query.filter(Orders.courier_id == courier_id, Orders.completed == 0).all()
+        if not orders_assigned_ids:
+            return make_response(jsonify({"orders": []}), 200)
         print(orders_assigned_ids)
+        time_schema = AssignTime(many=True)
+        result_time = time_schema.dump(orders_assigned_ids)
         json_result = orders_assigned_ids_schema.dump(orders_assigned_ids)
-        return make_response(jsonify({"orders": json_result, "assign_time": result_time}), 200)
+        print(json_result)
+        return make_response(jsonify({"orders": json_result, "assign_time": result_time[0]}), 200)
 
 
 @orders_page.route('/complete', methods=['POST'])

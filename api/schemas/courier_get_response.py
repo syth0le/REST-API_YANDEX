@@ -7,7 +7,8 @@ from api.models.couriers import *
 class CourierGetResponse(Schema):
 
     courier_id = fields.Integer(required=True)
-    courier_type = EnumField(CourierType, by_value=True)
+    # courier_type = EnumField(CourierType, by_value=True)
+    courier_type = fields.String(required=True, validate=validate.OneOf(['foot', 'bike', 'car']))
     working_hours = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
     regions = fields.List(fields.Integer(), required=True, validate=validate.Length(min=1))
     rating = fields.Number()
@@ -15,8 +16,8 @@ class CourierGetResponse(Schema):
 
     @post_dump
     def get_rating(self, out_data, **kwargs):
-        if out_data['rating'] > 0:
-            pass
-        else:
+        if out_data['rating'] is None:
             del out_data['rating']
+        else:
+            pass
         return out_data

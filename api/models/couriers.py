@@ -14,10 +14,10 @@ class Couriers(db.Model):
 
     id = db.Column(db.Integer, unique=True, primary_key=True, autoincrement=True)
     courier_id = db.Column(db.Integer, unique=True, nullable=False)
-    courier_type = db.Column(db.Enum(CourierType))
+    courier_type = db.Column(db.String(30))
     regions = db.Column(db.PickleType, nullable=False)
     working_hours = db.Column(db.PickleType, nullable=False)
-    rating = db.Column(db.Float, default=0.0)
+    rating = db.Column(db.Float, nullable=True)
     earnings = db.Column(db.Float, default=0.0)
     # weight_max = db.Column(db.Float, default=lambda: set_weight(courier_type))
     weight_current = db.Column(db.Float, default=0.0)
