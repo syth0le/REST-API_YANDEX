@@ -115,7 +115,7 @@ def courier_by_id(courier_id):
                     order.assigned = 0
                     db.session.add(courier_upd)
                 else:
-                    print(f'MWFJOWJF {current_weight}')
+                    # print(f'MWFJOWJF {current_weight}')
                     pass
 
         db.session.commit()

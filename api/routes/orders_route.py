@@ -138,7 +138,16 @@ def orders_complete():
         db.session.add(current_courier)
         db.session.commit()
 
+        pre_complete_time(courier_id, complete_time)
         order_to_complete = Orders.query.filter(Orders.order_id == order_id).first()
         order_complete_schema_response = OrdersCompletePostResponse()
         json_result = order_complete_schema_response.dump(order_to_complete)
         return make_response(jsonify(json_result), 200)
+
+
+def pre_complete_time(courier_id, complete_time):
+    orders_retime = Orders.query.filter(Orders.courier_id == courier_id, Orders.completed == 0).all()
+    for order in orders_retime:
+        order.assign_time = complete_time
+        db.session.add(order)
+        db.session.commit()

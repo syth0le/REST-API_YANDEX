@@ -4,6 +4,7 @@ db = SQLAlchemy()
 
 
 def create_db(app):
+    """Initializing and Creating database with context"""
     from api.models.couriers import Couriers
     from api.models.orders import Orders
 
