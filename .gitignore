@@ -134,4 +134,6 @@ dmypy.json
 # my ignores
 *.db
 REST-API_YANDEX/
+REST-API_YANDEX
+.REST-API_YANDEX/
 task.db
