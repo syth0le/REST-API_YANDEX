@@ -62,9 +62,9 @@ def orders_assign():
         courier_id = assign_to_courier['courier_id']
         try:
             courier = Couriers.find_by_courier_id(courier_id)
+            max_courier_weight = get_weight(courier.courier_type)
         except:
             return "Bad Request", 400
-        max_courier_weight = get_weight(courier.courier_type)
         orders_assigned_ids_schema = OrdersIds(many=True)
         assign_time = datetime.datetime.utcnow()
         current_weight = 0
@@ -100,11 +100,11 @@ def orders_assign():
         orders_assigned_ids = Orders.query.filter(Orders.courier_id == courier_id, Orders.completed == 0).all()
         if not orders_assigned_ids:
             return make_response(jsonify({"orders": []}), 200)
-        print(orders_assigned_ids)
+        # print(orders_assigned_ids)
         time_schema = AssignTime(many=True)
         result_time = time_schema.dump(orders_assigned_ids)
         json_result = orders_assigned_ids_schema.dump(orders_assigned_ids)
-        print(json_result)
+        # print(json_result)
         return make_response(jsonify({"orders": json_result, "assign_time": result_time[0]}), 200)
 
 
